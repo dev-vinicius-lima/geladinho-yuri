@@ -1,0 +1,83 @@
+<html lang='pt-br'>
+
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+
+    <head>
+      <style>
+        .card {
+          background-color: white;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          padding: 20px;
+          max-width: 900px;
+          width: 95%;
+          margin: 0 auto;
+        }
+
+        .card-header {
+          background-color: #007bff;
+          color: white;
+          padding: 20px;
+          border-top-left-radius: 5px;
+          border-top-right-radius: 5px;
+        }
+
+        .card-title {
+          font-size: 24px;
+          margin: 0;
+        }
+
+        .card-content {
+          margin-top: 20px;
+        }
+
+        .card a {
+          background-color: #007bff;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 5px;
+          text-decoration: none;
+          font-size: 16px;
+        }
+
+        .card-footer {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 3rem;
+          font-weight: bold;
+        }
+
+        .link-url {
+          margin-top: 3rem;
+        }
+      </style>
+    </head>
+
+  </head>
+
+  <body style="text-align: center; font-family: 'Arial', sans-serif;">
+    <div class='card'>
+      <div class='card-header'>
+        <h2 class='card-title'>Recuperação de senha</h2>
+      </div>
+      <div class='card-content'>
+        <p style='font-size: 16px;'>Olá, <b>{{name}}</b></p>
+        <p style='font-size: 16px;'>Não consegue lembrar sua senha? Não tem
+          problema, acontece com todos nós. Se não foi você que solicitou
+          desconsidere. Válido durante 30 minutos</p>
+        <p style='font-size: 16px;'>Para criar uma nova senha, clique no link
+          abaixo:</p>
+        <div class='link-url'>
+          <a href='{{url}}' target='_blank'> Redefinir Senha</a>
+        </div>
+
+      </div>
+      <div class='card-footer'>@Solasstec Tecnologia - {{year}}</div>
+    </div>
+  </body>
+
+</html>

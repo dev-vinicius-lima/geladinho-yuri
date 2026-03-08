@@ -1,0 +1,6 @@
+export const TIPO_FATURA_HISTORICO = {
+  CRIADO: 1,
+  LANCAMENTO: 2,
+  RETIFICACAO: 3,
+  FECHADO: 4,
+};

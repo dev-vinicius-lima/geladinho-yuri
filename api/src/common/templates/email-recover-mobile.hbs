@@ -1,0 +1,113 @@
+<html lang='pt-br'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Recuperação de Senha</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 480px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(43, 172, 170, 0.08);
+        overflow: hidden;
+      }
+      .header {
+        background: #2bacaaff;
+        color: #fff;
+        padding: 32px 0 16px 0;
+        text-align: center;
+      }
+      .logo {
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+      }
+      .content {
+        padding: 32px 24px 24px 24px;
+        text-align: center;
+      }
+      .content h1 {
+        margin: 0 0 12px 0;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #222;
+      }
+      .content p {
+        margin: 0 0 18px 0;
+        font-size: 1rem;
+        color: #444;
+      }
+      .code-label {
+        color: #2bacaaff;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+      }
+      .code-box {
+        display: inline-block;
+        background: #e6f7f7;
+        color: #2bacaaff;
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 14px 36px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        letter-spacing: 4px;
+      }
+      .footer {
+        text-align: center;
+        color: #888;
+        font-size: 0.95rem;
+        padding: 18px 0 12px 0;
+        background: #f6f6f6;
+      }
+      @media (max-width: 600px) {
+        .container {
+          margin: 12px;
+          width: 98%;
+        }
+        .content {
+          padding: 24px 8px 16px 8px;
+        }
+        .code-box {
+          font-size: 1.4rem;
+          padding: 10px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>Fácil</div>
+      </div>
+      <div class='content'>
+        <h1>Olá, {{name}}!</h1>
+        <div class='code-label'>Seu código de recuperação é</div>
+        <div class='code-box'>{{code}}</div>
+        <p>
+          Para recuperar a sua senha, insira o código acima no campo solicitado
+          no aplicativo.<br />
+          <span style='font-size: 1.2em;'>🔑</span>
+        </p>
+        <p style='color:#888; font-size:0.97em;'>
+          Caso você não tenha requisitado a recuperação, ignore este e-mail.<br
+          />
+          Código válido por 30 minutos.
+        </p>
+      </div>
+      <div class='footer'>
+        &copy; Solasstec Tecnologia -
+        {{year}}
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    container_name: wyden_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: geladinho_yuri
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+# docker-compose up -d
+# postgresql://postgres:postgres@localhost:5432/geladinho_yuri
+

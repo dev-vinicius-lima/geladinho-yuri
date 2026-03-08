@@ -1,0 +1,154 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["geladinho_yuri"]
+}
+
+model operacao {
+  id                                       String                 @id(map: "operacao_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tela_id                                  String                 @db.Uuid
+  nome                                     String                 @db.VarChar(100)
+  nome_curto                               String                 @db.VarChar(50)
+  url                                      String                 @db.VarChar(50)
+  icone                                    String                 @db.VarChar(45)
+  descricao                                String?                @db.VarChar(200)
+  target                                   Boolean?               @default(false)
+  tabela                                   Boolean?
+  criado_em                                DateTime               @default(now()) @db.Timestamp(6)
+  atualizado_em                            DateTime?              @db.Timestamp(6)
+  criado_por                               String?                @db.Uuid
+  atualizado_por                           String?                @db.Uuid
+  ativo                                    Boolean                @default(true)
+  usuario_operacao_atualizado_porTousuario usuario?               @relation("operacao_atualizado_porTousuario", fields: [atualizado_por], references: [id], onDelete: Restrict, map: "oper_atualizado_por_fk")
+  usuario_operacao_criado_porTousuario     usuario?               @relation("operacao_criado_porTousuario", fields: [criado_por], references: [id], onDelete: Restrict, map: "oper_criado_por_fk")
+  tela                                     tela                   @relation(fields: [tela_id], references: [id], map: "oper_tela_fk")
+  perfil_operacao_tela                     perfil_operacao_tela[]
+  usuario                                  usuario?               @relation(fields: [usuarioId], references: [id])
+  usuarioId                                String?                @db.Uuid
+
+  @@unique([tela_id, nome_curto], map: "oper_tela_nome_curto_un")
+  @@unique([tela_id, nome], map: "oper_tela_nome_un")
+  @@unique([tela_id, url], map: "oper_tela_url_un")
+  @@schema("geladinho_yuri")
+}
+
+model perfil {
+  id                                     String                 @id(map: "perfil_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome                                   String                 @unique(map: "perf_nome_un") @db.VarChar(30)
+  identificador                          String                 @unique(map: "perf_identificador_un") @db.VarChar(20)
+  administrador                          Boolean                @default(false)
+  criado_em                              DateTime               @default(now()) @db.Timestamp(6)
+  atualizado_em                          DateTime?              @db.Timestamp(6)
+  criado_por                             String?                @db.Uuid
+  atualizado_por                         String?                @db.Uuid
+  ativo                                  Boolean                @default(true)
+  usuario_perfil_atualizado_porTousuario usuario?               @relation("perfil_atualizado_porTousuario", fields: [atualizado_por], references: [id], onDelete: Restrict, map: "perf_atualizado_por_fk")
+  usuario_perfil_criado_porTousuario     usuario?               @relation("perfil_criado_porTousuario", fields: [criado_por], references: [id], onDelete: Restrict, map: "perf_criado_por_fk")
+  perfil_operacao_tela                   perfil_operacao_tela[]
+  usuario_perfil                         usuario_perfil[]
+
+  @@schema("geladinho_yuri")
+}
+
+model perfil_operacao_tela {
+  perfil_id   String   @db.Uuid
+  operacao_id String   @db.Uuid
+  tela_id     String   @db.Uuid
+  criado_em   DateTime @default(now()) @db.Timestamp(6)
+  criado_por  String?  @db.Uuid
+  operacao    operacao @relation(fields: [operacao_id], references: [id], map: "perf_ope_tel_operacao_fk")
+  perfil      perfil   @relation(fields: [perfil_id], references: [id], map: "perf_ope_tel_perfil_fk")
+  usuario     usuario? @relation(fields: [criado_por], references: [id], onDelete: Restrict, map: "perf_tel_tel_criado_por_fk")
+  tela        tela     @relation(fields: [tela_id], references: [id], map: "perf_tel_tel_tela_fk")
+
+  @@unique([perfil_id, operacao_id, tela_id], map: "perf_ope_tel_un")
+  @@schema("geladinho_yuri")
+}
+
+model tela {
+  id                                   String                 @id(map: "tela_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tela_pai_id                          String?                @db.Uuid
+  nome                                 String                 @unique(map: "tela_nome_un") @db.VarChar(100)
+  icone                                String                 @db.VarChar(45)
+  url                                  String                 @unique(map: "tela_url_un") @db.VarChar(50)
+  administrador                        Boolean                @default(false)
+  menu                                 Boolean                @default(false)
+  descricao                            String?                @db.VarChar(255)
+  ordem                                Int?
+  padrao_cor                           Json?
+  criado_em                            DateTime               @default(now()) @db.Timestamp(6)
+  atualizado_em                        DateTime?              @db.Timestamp(6)
+  criado_por                           String?                @db.Uuid
+  atualizado_por                       String?                @db.Uuid
+  ativo                                Boolean                @default(true)
+  operacao                             operacao[]
+  perfil_operacao_tela                 perfil_operacao_tela[]
+  usuario_tela_atualizado_porTousuario usuario?               @relation("tela_atualizado_porTousuario", fields: [atualizado_por], references: [id], onDelete: Restrict, map: "tela_atualizado_por_fk")
+  usuario_tela_criado_porTousuario     usuario?               @relation("tela_criado_porTousuario", fields: [criado_por], references: [id], onDelete: Restrict, map: "tela_criado_por_fk")
+  tela                                 tela?                  @relation("telaTotela", fields: [tela_pai_id], references: [id], onDelete: Restrict, map: "tela_pai_fk")
+  other_tela                           tela[]                 @relation("telaTotela")
+
+  @@schema("geladinho_yuri")
+}
+
+model usuario {
+  id                 String    @id(map: "usuario_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nome               String?   @db.VarChar(255)
+  codigo_validacao   String?   @db.VarChar(50)
+  apelido            String?   @db.VarChar(100)
+  cpf                String    @unique(map: "usua_cpf_un") @db.VarChar(11)
+  senha              String?   @db.VarChar(255)
+  email              String    @db.VarChar(100)
+  telefone           String?   @db.VarChar(11)
+  senha_redefinir    Boolean   @default(false)
+  senha_token        String    @default(dbgenerated("false")) @db.VarChar(255)
+  refresh_token      String?   @unique(map: "usua_refresh_token_un") @db.VarChar(255)
+  lembrete           String?   @db.VarChar(100)
+  conexao_id         Int?
+  ultimo_acesso_ip   String?   @db.VarChar(30)
+  ultimo_acesso_em   DateTime? @db.Timestamp(6)
+  imagem             String?   @db.VarChar(255)
+  administrador      Boolean   @default(false)
+  credencial_externa Json?
+  criado_em          DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em      DateTime? @db.Timestamp(6)
+  criado_por         String?   @db.Uuid
+  atualizado_por     String?   @db.Uuid
+  ativo              Boolean   @default(true)
+
+  perfil_perfil_atualizado_porTousuario             perfil[]               @relation("perfil_atualizado_porTousuario")
+  perfil_perfil_criado_porTousuario                 perfil[]               @relation("perfil_criado_porTousuario")
+  perfil_operacao_tela                              perfil_operacao_tela[]
+  tela_tela_atualizado_porTousuario                 tela[]                 @relation("tela_atualizado_porTousuario")
+  tela_tela_criado_porTousuario                     tela[]                 @relation("tela_criado_porTousuario")
+  usuario_usuario_atualizado_porTousuario           usuario?               @relation("usuario_atualizado_porTousuario", fields: [atualizado_por], references: [id], onDelete: Restrict, map: "usua_atualizado_por_fk")
+  other_usuario_usuario_atualizado_porTousuario     usuario[]              @relation("usuario_atualizado_porTousuario")
+  usuario_usuario_criado_porTousuario               usuario?               @relation("usuario_criado_porTousuario", fields: [criado_por], references: [id], onDelete: Restrict, map: "usua_criado_por_fk")
+  other_usuario_usuario_criado_porTousuario         usuario[]              @relation("usuario_criado_porTousuario")
+  usuario_perfil_usuario_perfil_criado_porTousuario usuario_perfil[]       @relation("usuario_perfil_criado_porTousuario")
+  usuario_perfil_usuario_perfil_usuario_idTousuario usuario_perfil[]       @relation("usuario_perfil_usuario_idTousuario")
+  operacaos                                         operacao[]
+  operacoes_atualizado_por                          operacao[] @relation("operacao_atualizado_porTousuario")
+  operacoes_criado_por                              operacao[] @relation("operacao_criado_porTousuario")
+  
+  @@schema("geladinho_yuri")
+}
+
+model usuario_perfil {
+  usuario_id                                 String   @db.Uuid
+  perfil_id                                  String   @db.Uuid
+  criado_em                                  DateTime @default(now()) @db.Timestamp(6)
+  criado_por                                 String?  @db.Uuid
+  usuario_usuario_perfil_criado_porTousuario usuario? @relation("usuario_perfil_criado_porTousuario", fields: [criado_por], references: [id], onDelete: Restrict, map: "usua_per_criado_por_fk")
+  perfil                                     perfil   @relation(fields: [perfil_id], references: [id], map: "usua_per_perfil_fk")
+  usuario_usuario_perfil_usuario_idTousuario usuario  @relation("usuario_perfil_usuario_idTousuario", fields: [usuario_id], references: [id], map: "usua_per_usuario_fk")
+
+  @@unique([usuario_id, perfil_id], map: "usua_per_un")
+  @@schema("geladinho_yuri")
+}

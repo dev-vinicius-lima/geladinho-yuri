@@ -1,0 +1,116 @@
+<html lang='pt-br'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <style>
+      .card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        max-width: 900px;
+        width: 95%;
+        margin: 0 auto;
+      }
+      .card-header {
+        background-color: #2bacaaff;
+        color: white;
+        padding: 20px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      .card-title {
+        font-size: 24px;
+        margin: 0;
+      }
+      .card-content {
+        margin-top: 20px;
+      }
+      .codigo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #2bacaaff;
+        margin: 24px 0;
+        letter-spacing: 4px;
+        user-select: all;
+        word-break: break-all;
+      }
+      .copy-btn {
+        background-color: #2bacaaff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+      .copy-btn:active {
+        background-color: #2bacaaff;
+      }
+      .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 3rem;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+      }
+      @media (max-width: 600px) {
+        .card {
+          padding: 8px;
+          max-width: 98vw;
+        }
+        .card-header {
+          padding: 12px;
+        }
+        .card-title {
+          font-size: 18px;
+        }
+        .codigo {
+          font-size: 22px;
+          margin: 16px 0;
+        }
+        .copy-btn {
+          font-size: 14px;
+          padding: 6px 12px;
+        }
+        .card-content p {
+          font-size: 14px !important;
+        }
+        .card-footer {
+          margin-top: 1.5rem;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body style="text-align: center; font-family: 'Arial', sans-serif;">
+    <div class='card'>
+      <div class='card-header'>
+        <h2 class='card-title'>Código de Validação - Primeiro Acesso</h2>
+      </div>
+      <div class='card-content'>
+        <p style='font-size: 16px;'>Olá, <b>{{name}}</b></p>
+        <p style='font-size: 16px;'>
+          Recebemos uma solicitação de primeiro acesso ao sistema
+          <b style='color: #2bacaaff;'>{{app_name}}</b>
+          para este e-mail.
+        </p>
+        <p style='font-size: 16px;'>
+          Utilize o código abaixo para validar seu cadastro e concluir o acesso:
+        </p>
+        <div class='codigo' id='codigo-validacao'>
+          {{codigo_validacao}}
+        </div>
+
+        <p style='font-size: 16px;'>
+          Se você não solicitou este acesso, ignore este e-mail.<br />
+        </p>
+      </div>
+      <div class='card-footer'>@Solasstec Tecnologia - {{year}}</div>
+    </div>
+  </body>
+</html>

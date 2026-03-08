@@ -1,0 +1,14 @@
+export const TIPO_REMESSA = {
+  ABERTA: 1,
+  LANCAMENTO: 2,
+  PENDENTE_PAGAMENTO: 3,
+  RETIFICACAO: 4,
+  FECHADO: 5,
+};
+
+export const SITUACAO_REMESSA = {
+  ABERTA: 1,
+  PENDENTE_PAGAMENTO: 2,
+  PAGO: 3,
+  LIQUIDADA: 4,
+};

@@ -1,0 +1,4 @@
+export const SITUACAO_CONVENIO_PRODUTO = {
+  ATIVO: 1,
+  INATIVO: 2,
+};

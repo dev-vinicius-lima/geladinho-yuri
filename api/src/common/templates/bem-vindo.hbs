@@ -1,0 +1,117 @@
+<html lang='pt-br'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <style>
+      .card {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(43, 172, 170, 0.08);
+        padding: 28px 24px 24px 24px;
+        max-width: 900px;
+        width: 95%;
+        margin: 0 auto;
+      }
+      .card-header {
+        background: linear-gradient(90deg, #2bacaaff 60%, #3ed6c6 100%);
+        color: #fff;
+        padding: 24px 20px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        text-align: center;
+      }
+      .card-title {
+        font-size: 28px;
+        margin: 0;
+        letter-spacing: 1px;
+      }
+      .emoji {
+        font-size: 38px;
+        margin-bottom: 8px;
+        display: block;
+      }
+      .card-content {
+        margin-top: 24px;
+        text-align: center;
+      }
+      .welcome-msg {
+        font-size: 20px;
+        color: #2bacaaff;
+        font-weight: bold;
+        margin-bottom: 18px;
+      }
+      .card-content p {
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 12px;
+      }
+      .highlight {
+        color: #2bacaaff;
+        font-weight: bold;
+      }
+      .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 3rem;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        color: #aaa;
+        font-size: 14px;
+      }
+      @media (max-width: 600px) {
+        .card {
+          padding: 10px;
+          max-width: 98vw;
+        }
+        .card-header {
+          padding: 14px 8px;
+        }
+        .card-title {
+          font-size: 20px;
+        }
+        .emoji {
+          font-size: 28px;
+        }
+        .welcome-msg {
+          font-size: 16px;
+        }
+        .card-content p {
+          font-size: 14px;
+        }
+        .card-footer {
+          margin-top: 1.5rem;
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body style="text-align: center; font-family: 'Arial', sans-serif;">
+    <div class='card'>
+      <div class='card-header'>
+        <span class='emoji'>🎉</span>
+        <h2 class='card-title'>Bem-vindo ao Fácil!</h2>
+      </div>
+      <div class='card-content'>
+        <div class='welcome-msg'>Olá,
+          <span class='highlight'>{{name}}</span>!</div>
+        <p>
+          É um prazer ter você conosco na plataforma
+          <span class='highlight'>Fácil</span>.
+        </p>
+        <p>
+          Explore todos os recursos e aproveite ao máximo sua experiência!
+        </p>
+        <p>
+          Se precisar de ajuda, conte com nosso suporte sempre que quiser.
+        </p>
+        <p style='margin-top: 24px; color: #2bacaaff; font-weight: bold;'>
+          Seja muito bem-vindo(a)!
+        </p>
+      </div>
+      <div class='card-footer'>@Solasstec Tecnologia - {{year}}</div>
+    </div>
+  </body>
+</html>
