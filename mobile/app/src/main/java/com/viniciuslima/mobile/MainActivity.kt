@@ -13,7 +13,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LoginScreen()
+            com.viniciuslima.mobile.ui.theme.MobileTheme {
+                com.viniciuslima.mobile.presentation.AppNavigation()
+            }
         }
     }
 }

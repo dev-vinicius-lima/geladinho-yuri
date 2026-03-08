@@ -26,59 +26,80 @@ fun LoginScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
     ) {
-        TextField(
-            value = cpf,
-            onValueChange = { cpf = it },
-            label = { Text("CPF") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = senha,
-            onValueChange = { senha = it },
-            label = { Text("Senha") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (val state = uiState) {
-            is LoginUiState.Error -> Text(
-                text = state.message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth()
-            )
-            is LoginUiState.Success -> Text(
-                text = "Login realizado com sucesso!",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            )
-            else -> {}
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { viewModel.login(cpf, senha, context) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimary
+            TextField(
+                value = cpf,
+                onValueChange = { cpf = it },
+                label = { Text("CPF") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.secondary
                 )
-            } else {
-                Text("Entrar")
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = senha,
+                onValueChange = { senha = it },
+                label = { Text("Senha") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.secondary
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when (val state = uiState) {
+                is LoginUiState.Error -> Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                is LoginUiState.Success -> Text(
+                    text = "Login realizado com sucesso!",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                else -> {}
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { viewModel.login(cpf, senha, context) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Entrar")
+                }
             }
         }
     }
