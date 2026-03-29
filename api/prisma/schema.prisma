@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  output          = "../generated/prisma"
   previewFeatures = ["multiSchema"]
 }
 
@@ -10,8 +9,10 @@ datasource db {
   schemas  = ["geladinho_yuri"]
 }
 
+// ─── Permissões / Autenticação ────────────────────────────────────────────────
+
 model operacao {
-  id                                       String                 @id(map: "operacao_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                                       String                 @id(map: "operacao_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tela_id                                  String                 @db.Uuid
   nome                                     String                 @db.VarChar(100)
   nome_curto                               String                 @db.VarChar(50)
@@ -39,7 +40,7 @@ model operacao {
 }
 
 model perfil {
-  id                                     String                 @id(map: "perfil_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                                     String                 @id(map: "perfil_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome                                   String                 @unique(map: "perf_nome_un") @db.VarChar(30)
   identificador                          String                 @unique(map: "perf_identificador_un") @db.VarChar(20)
   administrador                          Boolean                @default(false)
@@ -72,7 +73,7 @@ model perfil_operacao_tela {
 }
 
 model tela {
-  id                                   String                 @id(map: "tela_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                                   String                 @id(map: "tela_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tela_pai_id                          String?                @db.Uuid
   nome                                 String                 @unique(map: "tela_nome_un") @db.VarChar(100)
   icone                                String                 @db.VarChar(45)
@@ -98,7 +99,7 @@ model tela {
 }
 
 model usuario {
-  id                 String    @id(map: "usuario_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String    @id(map: "usuario_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome               String?   @db.VarChar(255)
   codigo_validacao   String?   @db.VarChar(50)
   apelido            String?   @db.VarChar(100)
@@ -134,9 +135,12 @@ model usuario {
   usuario_perfil_usuario_perfil_criado_porTousuario usuario_perfil[]       @relation("usuario_perfil_criado_porTousuario")
   usuario_perfil_usuario_perfil_usuario_idTousuario usuario_perfil[]       @relation("usuario_perfil_usuario_idTousuario")
   operacaos                                         operacao[]
-  operacoes_atualizado_por                          operacao[] @relation("operacao_atualizado_porTousuario")
-  operacoes_criado_por                              operacao[] @relation("operacao_criado_porTousuario")
-  
+  operacoes_atualizado_por                          operacao[]             @relation("operacao_atualizado_porTousuario")
+  operacoes_criado_por                              operacao[]             @relation("operacao_criado_porTousuario")
+  vendas                                            venda[]
+  caixas                                            caixa[]
+  notificacoes                                      notificacao[]
+
   @@schema("geladinho_yuri")
 }
 
@@ -150,5 +154,251 @@ model usuario_perfil {
   usuario_usuario_perfil_usuario_idTousuario usuario  @relation("usuario_perfil_usuario_idTousuario", fields: [usuario_id], references: [id], map: "usua_per_usuario_fk")
 
   @@unique([usuario_id, perfil_id], map: "usua_per_un")
+  @@schema("geladinho_yuri")
+}
+
+// ─── Produtos e Estoque ───────────────────────────────────────────────────────
+
+model categoria_produto {
+  id             String    @id(map: "categoria_produto_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome           String    @db.VarChar(50)
+  descricao      String?   @db.VarChar(200)
+  criado_em      DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em  DateTime? @db.Timestamp(6)
+  criado_por     String?   @db.Uuid
+  atualizado_por String?   @db.Uuid
+  ativo          Boolean   @default(true)
+  produtos       produto[]
+
+  @@unique([nome], map: "cat_prod_nome_un")
+  @@schema("geladinho_yuri")
+}
+
+model produto {
+  id             String    @id(map: "produto_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome           String    @db.VarChar(100)
+  descricao      String?   @db.VarChar(255)
+  codigo         String?   @unique(map: "prod_codigo_un") @db.VarChar(50)   // código de barras / SKU
+  unidade        String    @default("un") @db.VarChar(20)                   // un, kg, L, cx, etc.
+  preco          Decimal   @db.Decimal(10, 2)                               // preço de venda
+  preco_custo    Decimal?  @db.Decimal(10, 2)                               // preço de custo (margem)
+  quantidade     Int       @default(0)                                      // estoque atual
+  estoque_minimo Int       @default(0)                                      // alerta de estoque crítico
+  categoria_id   String    @db.Uuid
+  criado_em      DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em  DateTime? @db.Timestamp(6)
+  criado_por     String?   @db.Uuid
+  atualizado_por String?   @db.Uuid
+  ativo          Boolean   @default(true)
+
+  categoria     categoria_produto     @relation(fields: [categoria_id], references: [id], map: "prod_cat_fk")
+  movimentacoes movimentacao_estoque[]
+  itens_venda   item_venda[]
+  itens_entrada item_entrada[]
+
+  @@unique([nome, categoria_id], map: "prod_nome_cat_un")
+  @@schema("geladinho_yuri")
+}
+
+model movimentacao_estoque {
+  id          String    @id(map: "mov_estoque_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  produto_id  String    @db.Uuid
+  venda_id    String?   @db.Uuid               // preenchido quando originado por uma venda
+  tipo        String    @db.VarChar(20)        // entrada | saida | ajuste | cancelamento
+  quantidade  Int
+  descricao   String?   @db.VarChar(200)
+  criado_em   DateTime  @default(now()) @db.Timestamp(6)
+  criado_por  String?   @db.Uuid
+
+  produto produto @relation(fields: [produto_id], references: [id], map: "mov_prod_fk")
+  venda   venda?  @relation(fields: [venda_id], references: [id], map: "mov_venda_fk")
+
+  @@schema("geladinho_yuri")
+}
+
+// ─── Caixa ────────────────────────────────────────────────────────────────────
+
+model caixa {
+  id                String    @id(map: "caixa_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id        String    @db.Uuid
+  status            String    @default("aberto") @db.VarChar(20)  // aberto | fechado
+  valor_abertura    Decimal   @db.Decimal(10, 2)                  // fundo de caixa
+  valor_fechamento  Decimal?  @db.Decimal(10, 2)                  // contagem física ao fechar
+  total_vendas      Decimal?  @db.Decimal(10, 2)                  // calculado ao fechar
+  total_sangrias    Decimal?  @db.Decimal(10, 2)                  // calculado ao fechar
+  total_suprimentos Decimal?  @db.Decimal(10, 2)                  // calculado ao fechar
+  saldo_esperado    Decimal?  @db.Decimal(10, 2)                  // calculado ao fechar
+  diferenca         Decimal?  @db.Decimal(10, 2)                  // valor_fechamento - saldo_esperado
+  aberto_em         DateTime  @default(now()) @db.Timestamp(6)
+  fechado_em        DateTime? @db.Timestamp(6)
+  observacao        String?   @db.VarChar(500)
+  criado_por        String?   @db.Uuid
+
+  usuario       usuario              @relation(fields: [usuario_id], references: [id], map: "caixa_usuario_fk")
+  movimentacoes movimentacao_caixa[]
+  vendas        venda[]
+
+  @@schema("geladinho_yuri")
+}
+
+model movimentacao_caixa {
+  id          String    @id(map: "mov_caixa_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  caixa_id    String    @db.Uuid
+  tipo        String    @db.VarChar(20)    // sangria | suprimento
+  valor       Decimal   @db.Decimal(10, 2)
+  descricao   String?   @db.VarChar(200)
+  criado_em   DateTime  @default(now()) @db.Timestamp(6)
+  criado_por  String?   @db.Uuid
+
+  caixa caixa @relation(fields: [caixa_id], references: [id], map: "mov_caixa_fk")
+
+  @@schema("geladinho_yuri")
+}
+
+// ─── Vendas / PDV ─────────────────────────────────────────────────────────────
+
+model venda {
+  id              String    @id(map: "venda_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id      String    @db.Uuid
+  caixa_id        String?   @db.Uuid
+  status          String    @default("concluida") @db.VarChar(20)  // concluida | cancelada
+  forma_pagamento String    @default("dinheiro") @db.VarChar(30)   // dinheiro | pix | cartao_credito | cartao_debito | fiado
+  total           Decimal   @default(0) @db.Decimal(10, 2)
+  desconto        Decimal   @default(0) @db.Decimal(10, 2)
+  valor_recebido  Decimal?  @db.Decimal(10, 2)                     // para troco (dinheiro)
+  troco           Decimal?  @db.Decimal(10, 2)
+  observacao      String?   @db.VarChar(255)
+  criado_em       DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em   DateTime? @db.Timestamp(6)
+
+  itens                item_venda[]
+  usuario              usuario                @relation(fields: [usuario_id], references: [id], map: "venda_usuario_fk")
+  caixa                caixa?                 @relation(fields: [caixa_id], references: [id], map: "venda_caixa_fk")
+  movimentacoes_estoque movimentacao_estoque[]
+
+  @@schema("geladinho_yuri")
+}
+
+model item_venda {
+  id             String  @id(map: "item_venda_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  venda_id       String  @db.Uuid
+  produto_id     String  @db.Uuid
+  quantidade     Int
+  preco_unitario Decimal @db.Decimal(10, 2)
+  subtotal       Decimal @db.Decimal(10, 2)  // quantidade * preco_unitario (persistido)
+
+  produto produto @relation(fields: [produto_id], references: [id], map: "item_prod_fk")
+  venda   venda   @relation(fields: [venda_id], references: [id], map: "item_venda_fk")
+
+  @@schema("geladinho_yuri")
+}
+
+// ─── Fornecedores e Compras ──────────────────────────────────────────────────
+
+model fornecedor {
+  id             String    @id(map: "fornecedor_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome           String    @db.VarChar(150)
+  cnpj           String?   @unique(map: "forn_cnpj_un") @db.VarChar(14)
+  telefone       String?   @db.VarChar(20)
+  email          String?   @db.VarChar(100)
+  endereco       String?   @db.VarChar(255)
+  observacao     String?   @db.VarChar(500)
+  criado_em      DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em  DateTime? @db.Timestamp(6)
+  criado_por     String?   @db.Uuid
+  atualizado_por String?   @db.Uuid
+  ativo          Boolean   @default(true)
+
+  entradas_estoque entrada_estoque[]
+
+  @@schema("geladinho_yuri")
+}
+
+model entrada_estoque {
+  id              String    @id(map: "entrada_estoque_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fornecedor_id   String    @db.Uuid
+  status          String    @default("rascunho") @db.VarChar(20) // rascunho | confirmada | cancelada
+  nota_fiscal     String?   @db.VarChar(50)
+  data_emissao    DateTime? @db.Timestamp(6)
+  total           Decimal   @default(0) @db.Decimal(10, 2)
+  observacao       String?   @db.VarChar(500)
+  criado_em       DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em   DateTime? @db.Timestamp(6)
+  criado_por      String?   @db.Uuid
+  atualizado_por  String?   @db.Uuid
+
+  fornecedor fornecedor       @relation(fields: [fornecedor_id], references: [id], map: "ent_est_forn_fk")
+  itens      item_entrada[]
+
+  @@schema("geladinho_yuri")
+}
+
+model item_entrada {
+  id              String  @id(map: "item_entrada_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entrada_id      String  @db.Uuid
+  produto_id      String  @db.Uuid
+  quantidade      Int
+  preco_unitario  Decimal @db.Decimal(10, 2)
+  subtotal        Decimal @db.Decimal(10, 2)
+
+  entrada entrada_estoque @relation(fields: [entrada_id], references: [id], map: "item_ent_entrada_fk")
+  produto produto         @relation(fields: [produto_id], references: [id], map: "item_ent_prod_fk")
+
+  @@schema("geladinho_yuri")
+}
+
+// ─── Financeiro ──────────────────────────────────────────────────────────────
+
+model categoria_financeira {
+  id        String   @id(map: "cat_fin_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nome      String   @db.VarChar(100)
+  tipo      String   @db.VarChar(20) // despesa | receita
+  criado_em DateTime @default(now()) @db.Timestamp(6)
+  ativo     Boolean  @default(true)
+
+  contas conta_financeira[]
+
+  @@unique([nome, tipo], map: "cat_fin_nome_tipo_un")
+  @@schema("geladinho_yuri")
+}
+
+model conta_financeira {
+  id                      String    @id(map: "conta_fin_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipo                    String    @db.VarChar(20)  // pagar | receber
+  descricao               String    @db.VarChar(255)
+  valor                   Decimal   @db.Decimal(10, 2)
+  vencimento              DateTime  @db.Timestamp(6)
+  pago_em                 DateTime? @db.Timestamp(6)
+  forma_pagamento         String?   @db.VarChar(30)
+  categoria_financeira_id String?   @db.Uuid
+  observacao              String?   @db.VarChar(500)
+  recorrente              Boolean   @default(false)
+  origem                  String    @default("manual") @db.VarChar(30) // manual | venda | entrada_estoque
+  referencia_id           String?   @db.Uuid
+  criado_em               DateTime  @default(now()) @db.Timestamp(6)
+  atualizado_em           DateTime? @db.Timestamp(6)
+  criado_por              String?   @db.Uuid
+  ativo                   Boolean   @default(true)
+
+  categoria categoria_financeira? @relation(fields: [categoria_financeira_id], references: [id], map: "conta_fin_cat_fk")
+
+  @@schema("geladinho_yuri")
+}
+
+// ─── Notificações ────────────────────────────────────────────────────────────
+
+model notificacao {
+  id              String    @id(map: "notificacao_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id      String    @db.Uuid
+  tipo            String    @db.VarChar(50) // estoque_critico | caixa_aberto_longo | conta_vencendo | conta_vencida
+  titulo          String    @db.VarChar(150)
+  mensagem        String    @db.VarChar(500)
+  lida            Boolean   @default(false)
+  referencia_tipo String?   @db.VarChar(50)
+  referencia_id   String?   @db.Uuid
+  criado_em       DateTime  @default(now()) @db.Timestamp(6)
+
+  usuario usuario @relation(fields: [usuario_id], references: [id], map: "notif_usuario_fk")
+
   @@schema("geladinho_yuri")
 }

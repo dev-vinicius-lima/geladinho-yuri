@@ -1,21 +1,27 @@
 package com.viniciuslima.mobile.presentation.home
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.material3.MaterialTheme
 
-sealed class BottomNavItem(val route: String, val label: String, val iconRes: Int) {
-    object Home : BottomNavItem("home", "Início", android.R.drawable.ic_menu_view)
-    object PDV : BottomNavItem("pdv", "PDV", android.R.drawable.ic_menu_agenda)
-    object Estoque : BottomNavItem("estoque", "Estoque", android.R.drawable.ic_menu_sort_by_size)
-    object Financas : BottomNavItem("financas", "Finan.", android.R.drawable.ic_menu_info_details)
+sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
+    object Home : BottomNavItem(HomeRoutes.HOME, "Início", Icons.Filled.Home)
+    object PDV : BottomNavItem(HomeRoutes.PDV, "PDV", Icons.Filled.Store)
+    object Estoque : BottomNavItem(HomeRoutes.ESTOQUE, "Estoque", Icons.Filled.Inventory)
+    object Financas : BottomNavItem(HomeRoutes.FINANCAS, "Finan.", Icons.Filled.AccountBalance)
 
     companion object {
         val items = listOf(Home, PDV, Estoque, Financas)
@@ -34,10 +40,19 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem.items.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,
-                onClick = { navController.navigate(item.route) },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(HomeRoutes.HOME) {
+                            saveState = item.route != HomeRoutes.HOME
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                        restoreState = item.route != HomeRoutes.HOME
+                    }
+                },
                 icon = {
                     Icon(
-                        painterResource(item.iconRes),
+                        imageVector = item.icon,
                         contentDescription = item.label,
                         tint = if (currentRoute == item.route)
                             MaterialTheme.colorScheme.primary
@@ -55,7 +70,7 @@ fun BottomNavigationBar(navController: NavController) {
                     )
                 },
                 alwaysShowLabel = true,
-                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurface,
                     selectedTextColor = MaterialTheme.colorScheme.primary,

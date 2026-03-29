@@ -3,7 +3,7 @@ CREATE SCHEMA IF NOT EXISTS "geladinho_yuri";
 
 -- CreateTable
 CREATE TABLE "geladinho_yuri"."operacao" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tela_id" UUID NOT NULL,
     "nome" VARCHAR(100) NOT NULL,
     "nome_curto" VARCHAR(50) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE "geladinho_yuri"."operacao" (
 
 -- CreateTable
 CREATE TABLE "geladinho_yuri"."perfil" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "nome" VARCHAR(30) NOT NULL,
     "identificador" VARCHAR(20) NOT NULL,
     "administrador" BOOLEAN NOT NULL DEFAULT false,
@@ -48,7 +48,7 @@ CREATE TABLE "geladinho_yuri"."perfil_operacao_tela" (
 
 -- CreateTable
 CREATE TABLE "geladinho_yuri"."tela" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tela_pai_id" UUID,
     "nome" VARCHAR(100) NOT NULL,
     "icone" VARCHAR(45) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE "geladinho_yuri"."tela" (
 
 -- CreateTable
 CREATE TABLE "geladinho_yuri"."usuario" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "nome" VARCHAR(255),
     "codigo_validacao" VARCHAR(50),
     "apelido" VARCHAR(100),

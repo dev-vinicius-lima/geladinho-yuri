@@ -11,21 +11,33 @@ const nomeBucket = ENV_CONFIG.MINIO_BUCKET_NAME;
 
 @Injectable()
 export class MinioClientService {
-  private minioClient: Minio.Client;
+  private _minioClient: Minio.Client | null = null;
   private bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.minioClient = new Minio.Client({
-      endPoint:
-        this.configService.get('MINIO_ENDPOINT') || ENV_CONFIG.MINIO_ENDPOINT,
-      port: Number(this.configService.get('MINIO_PORT')),
-      useSSL: this.configService.get('MINIO_USE_SSL') === 'true',
-      accessKey: this.configService.get('MINIO_ACCESS_KEY'),
-      secretKey: this.configService.get('MINIO_SECRET_KEY'),
-    });
     this.bucketName =
       this.configService.get<string>('MINIO_BUCKET_NAME') ||
       ENV_CONFIG.MINIO_BUCKET_NAME;
+  }
+
+  private get minioClient(): Minio.Client {
+    if (!this._minioClient) {
+      const endpoint =
+        this.configService.get('MINIO_ENDPOINT') || ENV_CONFIG.MINIO_ENDPOINT;
+      if (!endpoint) {
+        throw new Error(
+          'MinIO não configurado. Defina MINIO_ENDPOINT no .env.',
+        );
+      }
+      this._minioClient = new Minio.Client({
+        endPoint: endpoint,
+        port: Number(this.configService.get('MINIO_PORT')),
+        useSSL: this.configService.get('MINIO_USE_SSL') === 'true',
+        accessKey: this.configService.get('MINIO_ACCESS_KEY'),
+        secretKey: this.configService.get('MINIO_SECRET_KEY'),
+      });
+    }
+    return this._minioClient;
   }
 
   async createBucketIfNotExists() {

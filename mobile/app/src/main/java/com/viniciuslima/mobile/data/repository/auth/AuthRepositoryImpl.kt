@@ -5,6 +5,7 @@ import com.viniciuslima.mobile.core.network.safeApiCall
 import com.viniciuslima.mobile.data.remote.api.auth.AuthApi
 import com.viniciuslima.mobile.data.remote.dto.auth.LoginRequestDto
 import com.viniciuslima.mobile.data.remote.dto.auth.LoginResponseDto
+import com.viniciuslima.mobile.domain.repository.AuthRepository
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
